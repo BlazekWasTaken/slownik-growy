@@ -1,21 +1,13 @@
-﻿List<string> words = new();
+﻿using System.Reflection;
 
-bool isFilePathIncorrect = true;
-while (isFilePathIncorrect)
-{
-    Console.WriteLine("Gdzie jest plik ze słowami?");
-    try
-    {
-        string path = Console.ReadLine() ?? string.Empty;
-        words = File.ReadAllLines(path).ToList();
-        isFilePathIncorrect = false;
-    }
-    catch
-    {
-        isFilePathIncorrect = true;
-    }
-    Console.Clear();
-}
+string path = Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.Contains("slowa.txt")) ?? string.Empty;
+
+var thisAssembly = Assembly.GetExecutingAssembly();
+var stream = thisAssembly.GetManifestResourceStream(path);
+if (stream is null) return;
+var reader = new StreamReader(stream);
+
+List<string> words = reader.ReadToEnd().Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None).ToList();
 
 while (true)
 {

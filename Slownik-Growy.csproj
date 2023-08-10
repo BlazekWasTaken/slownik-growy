@@ -8,4 +8,10 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <None Remove="slowa.txt" />
+      <EmbeddedResource Include="slowa.txt" />
+    </ItemGroup>
+
+
 </Project>
