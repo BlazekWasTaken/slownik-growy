@@ -1,13 +1,22 @@
 ﻿using System.Reflection;
 
-string path = Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.Contains("slowa.txt")) ?? string.Empty;
+string tempPath = Path.GetTempPath();
+string zipPath = Path.Combine(tempPath, "slowa.zip");
+string filePath = Path.Combine(tempPath, "slowa.txt");
 
-var thisAssembly = Assembly.GetExecutingAssembly();
-var stream = thisAssembly.GetManifestResourceStream(path);
-if (stream is null) return;
-var reader = new StreamReader(stream);
+string resourcePath = Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.Contains("slowa.zip")) ?? string.Empty;
+var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath);
+var fileStream = new FileStream(zipPath, FileMode.Create);
 
-List<string> words = reader.ReadToEnd().Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None).ToList();
+stream.CopyTo(fileStream);
+stream.Close();
+fileStream.Close();
+
+System.IO.Compression.ZipFile.ExtractToDirectory(zipPath,tempPath);
+File.Delete(zipPath);
+
+List<string> words = File.ReadAllLines(filePath).ToList();
+File.Delete(filePath);
 
 while (true)
 {
