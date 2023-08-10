@@ -1,26 +1,30 @@
 ﻿using System.Reflection;
 
-string path = Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.Contains("slowa.txt")) ?? string.Empty;
+string tempPath = Path.GetTempPath();
+string zipPath = Path.Combine(tempPath, "slowa.zip");
 
-var thisAssembly = Assembly.GetExecutingAssembly();
-var stream = thisAssembly.GetManifestResourceStream(path);
-if (stream is null) return;
-var reader = new StreamReader(stream);
+string resourcePath = Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.Contains("slowa.zip")) ?? string.Empty;
+var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath);
+var fileStream = new FileStream(zipPath, FileMode.Create);
 
-List<string> words = reader.ReadToEnd().Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None).ToList();
+stream.CopyTo(fileStream);
+stream.Close();
+fileStream.Close();
 
-while (true)
-{
-    Console.Write("Jakie słowo sprawdzić?: ");
-    try
-    {
-        string word = Console.ReadLine() ?? string.Empty;
-        Console.WriteLine(words.Contains(word.ToLower()) ? "Słowo jest dobre :)" : "Słowo nie jest dobre :(");
-    }
-    catch
-    {
-        Console.WriteLine("Słowo nie jest dobre :(");
-    }
-    Console.ReadLine();
-    Console.Clear();
-}
+// while (true)
+// {
+//     Console.Write("Jakie słowo sprawdzić?: ");
+//     try
+//     {
+//         string word = Console.ReadLine() ?? string.Empty;
+//         Console.WriteLine(words.Contains(word.ToLower()) ? "Słowo jest dobre :)" : "Słowo nie jest dobre :(");
+//     }
+//     catch
+//     {
+//         Console.WriteLine("Słowo nie jest dobre :(");
+//     }
+//     Console.ReadLine();
+//     Console.Clear();
+// }
+
+File.Delete(zipPath);

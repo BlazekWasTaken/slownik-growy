@@ -9,9 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="slowa.txt" />
-      <EmbeddedResource Include="slowa.txt" />
     </ItemGroup>
 
+
+    <ItemGroup>
+      <None Remove="slowa.zip" />
+      <EmbeddedResource Include="slowa.zip" />
+    </ItemGroup>
 
 </Project>
