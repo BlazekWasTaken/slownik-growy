@@ -1,24 +1,23 @@
 ﻿List<string> words = new();
 
-bool isFilePathCorrect = true;
-while (isFilePathCorrect)
+bool isFilePathIncorrect = true;
+while (isFilePathIncorrect)
 {
     Console.WriteLine("Gdzie jest plik ze słowami?");
     try
     {
         string path = Console.ReadLine() ?? string.Empty;
         words = File.ReadAllLines(path).ToList();
-        isFilePathCorrect = false;
+        isFilePathIncorrect = false;
     }
-    catch (Exception e)
+    catch
     {
-        isFilePathCorrect = true;
+        isFilePathIncorrect = true;
     }
     Console.Clear();
 }
 
-bool isRunning = true;
-while (isRunning)
+while (true)
 {
     Console.Write("Jakie słowo sprawdzić?: ");
     try
