@@ -1,9 +1,19 @@
-﻿using System.Reflection;
+﻿using System.IO.Compression;
+using System.Reflection;
 
 string resourcePath = Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.Contains("slowa.zip")) ?? string.Empty;
-var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath);
+Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath);
+if (stream is null) return;
 
-List<string> words = new();
+ZipArchive archive = new(stream);
+
+ZipArchiveEntry? wordsArchiveEntry = archive.Entries.FirstOrDefault(x => x.FullName == "slowa.txt");
+if (wordsArchiveEntry is null) return;
+
+Stream unzippedFileStream = wordsArchiveEntry.Open();
+StreamReader reader = new(unzippedFileStream);
+
+List<string> words = reader.ReadToEnd().Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None).ToList();
 
 while (true)
 {
