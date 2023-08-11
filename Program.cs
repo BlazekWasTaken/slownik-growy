@@ -1,22 +1,9 @@
 ﻿using System.Reflection;
 
-string tempPath = Path.GetTempPath();
-string zipPath = Path.Combine(tempPath, "slowa.zip");
-string filePath = Path.Combine(tempPath, "slowa.txt");
-
 string resourcePath = Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.Contains("slowa.zip")) ?? string.Empty;
 var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath);
-var fileStream = new FileStream(zipPath, FileMode.Create);
 
-stream.CopyTo(fileStream);
-stream.Close();
-fileStream.Close();
-
-System.IO.Compression.ZipFile.ExtractToDirectory(zipPath,tempPath);
-File.Delete(zipPath);
-
-List<string> words = File.ReadAllLines(filePath).ToList();
-File.Delete(filePath);
+List<string> words = new();
 
 while (true)
 {
