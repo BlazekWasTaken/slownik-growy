@@ -1,22 +1,19 @@
-﻿using System.Reflection;
-
-string tempPath = Path.GetTempPath();
-string zipPath = Path.Combine(tempPath, "slowa.zip");
-string filePath = Path.Combine(tempPath, "slowa.txt");
+﻿using System.IO.Compression;
+using System.Reflection;
 
 string resourcePath = Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.Contains("slowa.zip")) ?? string.Empty;
-var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath);
-var fileStream = new FileStream(zipPath, FileMode.Create);
+Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath);
+if (stream is null) return;
 
-stream.CopyTo(fileStream);
-stream.Close();
-fileStream.Close();
+ZipArchive archive = new(stream);
 
-System.IO.Compression.ZipFile.ExtractToDirectory(zipPath,tempPath);
-File.Delete(zipPath);
+ZipArchiveEntry? wordsArchiveEntry = archive.Entries.FirstOrDefault(x => x.FullName == "slowa.txt");
+if (wordsArchiveEntry is null) return;
 
-List<string> words = File.ReadAllLines(filePath).ToList();
-File.Delete(filePath);
+Stream unzippedFileStream = wordsArchiveEntry.Open();
+StreamReader reader = new(unzippedFileStream);
+
+List<string> words = reader.ReadToEnd().Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None).ToList();
 
 while (true)
 {
