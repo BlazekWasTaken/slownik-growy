@@ -15,6 +15,7 @@ StreamReader reader = new(unzippedFileStream);
 
 List<string> words = reader.ReadToEnd().Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None).ToList();
 
+Console.Clear();
 while (true)
 {
     Console.Write("Jakie słowo sprawdzić?: ");
