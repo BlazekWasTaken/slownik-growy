@@ -1,6 +1,11 @@
 ﻿using System.IO.Compression;
 using System.Reflection;
 
+Console.CancelKeyPress += (s, e) =>
+{
+    Console.Clear();
+};
+
 #region File decompression and list creation
 
 string resourcePath = Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.Contains("slowa.zip")) ?? string.Empty;
@@ -84,21 +89,23 @@ while (true)
 
             List<string> possibleWords = new();
 
-            Thread t1 = new(() => FindWords(words.GetRange(0, words.Count/4)));
-            Thread t2 = new(() => FindWords(words.GetRange(words.Count/4, words.Count/4)));
-            Thread t3 = new(() => FindWords(words.GetRange(words.Count/2, words.Count/4)));
-            Thread t4 = new(() => FindWords(words.GetRange(words.Count/4*3, words.Count/4)));
-            
-            t1.Start();
-            t2.Start();
-            t3.Start();
-            t4.Start();
-            
-            t1.Join();
-            t2.Join();
-            t3.Join();
-            t4.Join();
-            
+            List<Thread> threads = new();
+            int threadIndex = 0;
+            const int howManyThreads = 16;
+
+            for (int i = 0; i < howManyThreads; i++)
+            {
+                int start = threadIndex;
+                int length = words.Count / howManyThreads;
+                
+                Thread thread = new(() => FindWords(words.GetRange(start, length)));
+                threads.Add(thread);
+                threadIndex += words.Count / howManyThreads;
+            }
+
+            threads.ForEach(x => x.Start());
+            threads.ForEach(x => x.Join());
+
             Dictionary<string, int> wordsWithPoints = possibleWords.ToDictionary(x => x, x =>
             {
                 int sum = 0;
