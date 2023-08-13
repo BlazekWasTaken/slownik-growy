@@ -84,19 +84,21 @@ while (true)
 
             List<string> possibleWords = new();
 
-            foreach (string w in words)
-            {
-                List<char> distinctLettersInWord = w.ToCharArray().Distinct().ToList();
-                Dictionary<char, int> letterCountsInWord = distinctLettersInWord.ToDictionary(letter => letter, letter => w.Count(x => x == letter));
-
-                if (distinctLetters.Count < distinctLettersInWord.Count) continue;
-                if (!new HashSet<char>(distinctLetters).IsSupersetOf(new HashSet<char>(distinctLettersInWord))) continue;
-
-                if (!distinctLettersInWord.All(x => letterCountsInWord[x] <= letterCounts[x])) continue;
-                
-                possibleWords.Add(w);
-            }
- 
+            Thread t1 = new(() => FindWords(words.GetRange(0, words.Count/4)));
+            Thread t2 = new(() => FindWords(words.GetRange(words.Count/4, words.Count/4)));
+            Thread t3 = new(() => FindWords(words.GetRange(words.Count/2, words.Count/4)));
+            Thread t4 = new(() => FindWords(words.GetRange(words.Count/4*3, words.Count/4)));
+            
+            t1.Start();
+            t2.Start();
+            t3.Start();
+            t4.Start();
+            
+            t1.Join();
+            t2.Join();
+            t3.Join();
+            t4.Join();
+            
             Dictionary<string, int> wordsWithPoints = possibleWords.ToDictionary(x => x, x =>
             {
                 int sum = 0;
@@ -124,6 +126,21 @@ while (true)
             Console.WriteLine();
             
             break;
+
+            void FindWords(List<string> wordsToLookAt)
+            {
+                foreach (string w in wordsToLookAt)
+                {
+                    List<char> distinctLettersInWord = w.ToCharArray().Distinct().ToList();
+                    Dictionary<char, int> letterCountsInWord = distinctLettersInWord.ToDictionary(letter => letter, letter => w.Count(x => x == letter));
+
+                    if (distinctLetters.Count < distinctLettersInWord.Count) continue;
+                    if (!new HashSet<char>(distinctLetters).IsSupersetOf(new HashSet<char>(distinctLettersInWord))) continue;
+                    if (!distinctLettersInWord.All(x => letterCountsInWord[x] <= letterCounts[x])) continue;
+                
+                    possibleWords.Add(w);
+                }
+            }
         case "W" or "w":
             Console.Clear();
             return;
