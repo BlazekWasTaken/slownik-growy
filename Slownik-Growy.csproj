@@ -8,13 +8,15 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+
     <ItemGroup>
+        <None Remove="slowa.zip"/>
+        <EmbeddedResource Include="slowa.zip"/>
     </ItemGroup>
 
 
     <ItemGroup>
-      <None Remove="slowa.zip" />
-      <EmbeddedResource Include="slowa.zip" />
+      <PackageReference Include="sjp-api-net" Version="1.0.0" />
     </ItemGroup>
 
 </Project>

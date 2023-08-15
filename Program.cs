@@ -1,14 +1,14 @@
 ﻿using System.IO.Compression;
 using System.Reflection;
+using sjp_api_net;
 
-Console.CancelKeyPress += (s, e) =>
-{
-    Console.Clear();
-};
+Console.CancelKeyPress += (s, e) => { Console.Clear(); };
 
 #region File decompression and list creation
 
-string resourcePath = Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.Contains("slowa.zip")) ?? string.Empty;
+string resourcePath =
+    Assembly.GetExecutingAssembly().GetManifestResourceNames().FirstOrDefault(x => x.Contains("slowa.zip")) ??
+    string.Empty;
 Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath);
 if (stream is null) return;
 
@@ -29,8 +29,8 @@ List<string> words = reader.ReadToEnd().Split(new[] { "\r\n", "\r", "\n" }, Stri
 Console.Clear();
 while (true)
 {
-    Console.WriteLine("Co chcesz zrobić? [S]prawdź poprawność słowa [Z]najdź słowo z posiadanych liter [W]yjdź");
-    string choice = String.Empty;
+    Console.WriteLine("Co chcesz zrobić? [S]prawdź poprawność słowa [Z]najdź słowo z posiadanych liter [P]okaż definicje słowa (potrzebne połączenie internetowe) [W]yjdź");
+    string choice = string.Empty;
     try
     {
         choice = Console.ReadLine() ?? string.Empty;
@@ -40,12 +40,13 @@ while (true)
         Console.Clear();
         continue;
     }
+    choice = choice.ToLower().Trim();
 
     switch (choice)
     {
-        case "S" or "s":
+        case "s":
             Console.Write("Jakie słowo sprawdzić?: ");
-            string word = string.Empty;
+            string word;
             try
             {
                 word = Console.ReadLine() ?? string.Empty;
@@ -54,16 +55,18 @@ while (true)
             catch
             {
                 Console.WriteLine("Słowo nie jest dobre :(");
+                break;
             }
             Console.WriteLine(words.Contains(word) && word != "" ? "Słowo jest dobre :)" : "Słowo nie jest dobre :(");
             break;
-        case "Z" or "z":
+        case "z":
             Console.Write("Jakie masz litery?: ");
             string letters;
             try
             {
                 letters = Console.ReadLine() ?? string.Empty;
                 letters = letters.Trim().ToLower();
+                if (letters == string.Empty) throw new Exception();
                 if (!letters.All(char.IsLetter)) throw new Exception();
                 if (letters.Contains('q') || letters.Contains('x') || letters.Contains('v')) throw new Exception();
             }
@@ -130,8 +133,7 @@ while (true)
                 Console.Write($"{maxPointsWord.Value} ");
                 Console.ResetColor();
             }
-            Console.WriteLine();
-            
+
             break;
 
             void FindWords(List<string> wordsToLookAt)
@@ -148,7 +150,32 @@ while (true)
                     possibleWords.Add(w);
                 }
             }
-        case "W" or "w":
+        case "p":
+            Console.Write("Jakie słowo sprawdzić?: ");
+            Word searchedWord;
+            try
+            {
+                string input = Console.ReadLine() ?? string.Empty;
+                input = input.Trim().ToLower();
+                searchedWord = Sjp.GetWord(input);
+            }
+            catch
+            {
+                Console.WriteLine("Słowo nie jest dobre lub nie ma połącznia internetowego :(");
+                break;
+            }
+            
+            Console.WriteLine(searchedWord.GetIsAllowedInGames()
+                ? "Słowo jest dopuszczalne w grach"
+                : "Słowo jest niedopuszczalne w grach");
+            
+            Console.WriteLine("Definicje:");
+            foreach (string definition in searchedWord.GetDefinitions())
+            {
+                Console.WriteLine(definition);
+            }
+            break;
+        case "w":
             Console.Clear();
             return;
         default:
